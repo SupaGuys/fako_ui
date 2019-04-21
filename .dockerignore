@@ -1,0 +1,8 @@
+.git
+.gitignore
+build_docker
+build_docker/*
+*.swp
+node_modules
+node_modules/*
+./*.sh

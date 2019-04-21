@@ -1,0 +1,16 @@
+FROM nginx:alpine
+ENV VER "v1"
+ENV PORT "8080"
+
+RUN rm /etc/nginx/conf.d/default.conf && \
+    echo -e "server {" >> /etc/nginx/conf.d/mocker.conf && \
+    echo -e "\tlisten $PORT;" >> /etc/nginx/conf.d/mocker.conf && \
+    echo -e "\tserver_name _;" >> /etc/nginx/conf.d/mocker.conf && \
+    echo -e "\tlocation /{" >> /etc/nginx/conf.d/mocker.conf && \
+    echo -e "\t\treturn 200 'this is a mocka!';" >> /etc/nginx/conf.d/mocker.conf && \
+    echo -e "\t}" >> /etc/nginx/conf.d/mocker.conf && \
+    echo -e "\tlocation /$VER/projects/list {" >> /etc/nginx/conf.d/mocker.conf && \
+    echo -e "\t\treturn 200 '{\"projects\": [{\"name\": \"Project1\"}, {\"name\": \"Project2\"}, {\"name\": \"Project3\"}]}';" >> /etc/nginx/conf.d/mocker.conf && \
+    echo -e "\t}\n}" >> /etc/nginx/conf.d/mocker.conf
+
+ENTRYPOINT ["sh", "-c", "nginx -c /etc/nginx/nginx.conf -g 'daemon off;'"]

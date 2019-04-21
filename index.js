@@ -4,29 +4,34 @@ const e = require('express');
 const app = e();
 const path = require('path');
 const request = require('request');
+const util = require('util');
+const APP_PORT = process.env.PORT || 3000;
+const BACKEND_HOST = process.env.BACKEND_HOST || 'localhost';
+const BACKEND_SCHEMA = process.env.BACKEND_SCHENA || 'http';
+const BACKEND_PORT = process.env.BACKEND_PORT || 80;
+const BACKEND_API_VER = process.env.BACKEND_API_VER || 'v1';
 
+const BACKEND_URI = util.format('%s://%s:%s/%s', BACKEND_SCHEMA, BACKEND_HOST, BACKEND_PORT, BACKEND_API_VER);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 app.use(e.static('static'));
 
 app.get('/', function(gl_req, gl_res) {
-  request('http://localhost/v1/projects/list', {json: true}, (err, res, body) => { 
+  request(util.format('%s/projects/list', BACKEND_URI), {json: true}, (err, res, body) => { 
     if (err) { 
-      gl_res.send('zhopa'); 
-      console.log('err is ' + err);
-      return;
+      console.log('Error connecting go backend: ' + err);
+      var projects = [];
+    } else {
+      var projects = body['projects'];
+      console.log("body keys are: " + Object.keys(body['projects']));
     }
-    console.log('res is ' + res.toJSON + '\n status code is ' + res.statusCode + '\nkeys: ' + Object.keys(res));
-    console.log('body is ' + body == Array);
-    console.log('le is ' + body['projects'].length);
-    body['projects'].forEach(function(el) {console.log("elem is " + el)});
-    gl_res.render('main', {"projects": body['projects']});
+    projects.forEach(function(el) {console.log("elem is " + el)});
+    gl_res.render('main', { "projects": projects });
   });
-  //res.render('main')
 })
 
 
-app.listen(3000, function() {
-  console.log("3000");
+app.listen(APP_PORT, function() {
+  console.log("Listening on port " + APP_PORT);
 })
